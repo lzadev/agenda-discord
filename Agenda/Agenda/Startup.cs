@@ -1,19 +1,16 @@
 using Agenda.Context;
+using Agenda.Filters;
 using Agenda.Repository.Abstract;
 using Agenda.Repository.Concret;
+using Agenda.Services.Abstract;
+using Agenda.Services.Concret;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Agenda
 {
@@ -29,9 +26,16 @@ namespace Agenda
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            //
+            services.AddTransient<IContactService, ContactService>();
+            //
             services.AddTransient<IContactRepository, ContactRepository>();
             services.AddDbContext<AgendaContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("db")));
-            services.AddControllers();
+            services.AddControllers(opt =>
+            {
+                opt.Filters.Add<GlobalExceptionFilter>();
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

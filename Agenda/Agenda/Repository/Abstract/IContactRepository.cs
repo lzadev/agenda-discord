@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Agenda.Repository.Concret
+namespace Agenda.Repository.Abstract
 {
     public interface IContactRepository
     {

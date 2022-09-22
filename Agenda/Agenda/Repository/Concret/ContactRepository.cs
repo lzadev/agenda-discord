@@ -1,11 +1,12 @@
 ﻿using Agenda.Context;
 using Agenda.Models;
-using Agenda.Repository.Concret;
+using Agenda.Repository.Abstract;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Agenda.Repository.Abstract
+namespace Agenda.Repository.Concret
 {
     public class ContactRepository : IContactRepository
     {
@@ -36,6 +37,7 @@ namespace Agenda.Repository.Abstract
 
         public async Task<Contact> GetById(int id)
         {
+            throw new Exception("Exception en el repositorio");
             return await context.Contacts.FindAsync(id);
         }
 

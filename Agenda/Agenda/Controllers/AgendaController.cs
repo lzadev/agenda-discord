@@ -1,5 +1,5 @@
-﻿using Agenda.Models;
-using Agenda.Repository.Concret;
+﻿using Agenda.DTOs;
+using Agenda.Services.Abstract;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -10,79 +10,30 @@ namespace Agenda.Controllers
     [ApiController]
     public class AgendaController : Controller
     {
-        private readonly IContactRepository _contactRepository;
+        private readonly IContactService _contactService;
 
-        public AgendaController(IContactRepository contactRepository)
+        public AgendaController(IContactService contactService)
         {
-            _contactRepository = contactRepository;
+            _contactService = contactService;
         }
 
         [HttpGet]
-        public async Task<IEnumerable<Contact>> GetAll()
-        {
-            var contacts = await _contactRepository.GetAll();
-
-            return contacts;
-        }
+        public async Task<IEnumerable<ContactDto>> GetAll() => await _contactService.GetAll();
 
         [HttpGet("{id:int}")]
-        public async Task<Contact> GetById(int id)
-        {
-            var contact = await _contactRepository.GetById(id);
-
-            return contact;
-        }
+        public async Task<ContactDto> GetById(int id) => await _contactService.GetById(id);
 
         [HttpDelete("{id:int}")]
-        public async Task<IActionResult> Delete(int id)
+        public IActionResult Delete(int id)
         {
-            var contact = await _contactRepository.GetById(id);
-
-            if (contact == null)
-            {
-                return NotFound();
-            }
-
-            contact.IsDeleted = true;
-
-            if (!await _contactRepository.Delete(contact))
-            {
-                return BadRequest();
-            }
+            _contactService.Delete(id);
             return Ok();
         }
 
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, Contact model)
-        {
-            if (id != model.Id)
-            {
-                return BadRequest();
-            }
-
-            var contact = await _contactRepository.GetById(id);
-
-            if (contact == null)
-            {
-                return NotFound();
-            }
-
-            contact.Id = contact.Id;
-            contact.Name = model.Name;
-            contact.LastName = model.LastName;
-            contact.Address = model.Address;
-            contact.PhoneNumber = model.PhoneNumber;
-            await _contactRepository.Update(contact);
-
-            return Ok(contact);
-        }
+        public async Task<ContactDto> Update(int id, UpdateContactDto model) => await _contactService.Update(id, model);
 
         [HttpPost]
-        public async Task<Contact> Create(Contact model)
-        {
-            var contact = await _contactRepository.Create(model);
-
-            return contact;
-        }
+        public async Task<ContactDto> Create(CreateContactDto model) => await _contactService.Create(model);
     }
 }
