@@ -1,7 +1,6 @@
 ﻿using Agenda.DTOs;
 using Agenda.Services.Abstract;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Agenda.Controllers
@@ -18,22 +17,18 @@ namespace Agenda.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<ContactDto>> GetAll() => await _contactService.GetAll();
+        public async Task<ApiResponse<ContactDto>> GetAll() => await _contactService.GetAll();
 
         [HttpGet("{id:int}")]
-        public async Task<ContactDto> GetById(int id) => await _contactService.GetById(id);
+        public async Task<ApiResponse<ContactDto>> GetById(int id) => await _contactService.GetById(id);
 
         [HttpDelete("{id:int}")]
-        public IActionResult Delete(int id)
-        {
-            _contactService.Delete(id);
-            return Ok();
-        }
+        public async Task<ApiResponse<bool>> Delete(int id) => await _contactService.Delete(id);
 
         [HttpPut("{id:int}")]
-        public async Task<ContactDto> Update(int id, UpdateContactDto model) => await _contactService.Update(id, model);
+        public async Task<ApiResponse<ContactDto>> Update(int id, UpdateContactDto model) => await _contactService.Update(id, model);
 
         [HttpPost]
-        public async Task<ContactDto> Create(CreateContactDto model) => await _contactService.Create(model);
+        public async Task<ApiResponse<ContactDto>> Create(CreateContactDto model) => await _contactService.Create(model);
     }
 }

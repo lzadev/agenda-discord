@@ -1,9 +1,12 @@
 using Agenda.Context;
+using Agenda.DTOs;
 using Agenda.Filters;
 using Agenda.Repository.Abstract;
 using Agenda.Repository.Concret;
 using Agenda.Services.Abstract;
 using Agenda.Services.Concret;
+using Agenda.Validations;
+using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +29,8 @@ namespace Agenda
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddScoped<IValidator<CreateContactDto>, CreateContactValidator>();
+
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             //
             services.AddTransient<IContactService, ContactService>();

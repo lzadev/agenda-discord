@@ -37,7 +37,6 @@ namespace Agenda.Repository.Concret
 
         public async Task<Contact> GetById(int id)
         {
-            throw new Exception("Exception en el repositorio");
             return await context.Contacts.FindAsync(id);
         }
 
