@@ -1,5 +1,7 @@
 ﻿using Agenda.DTOs;
+using Agenda.Exceptions;
 using Agenda.Services.Abstract;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -27,6 +29,15 @@ namespace Agenda.Controllers
 
         [HttpPut("{id:int}")]
         public async Task<ApiResponse<ContactDto>> Update(int id, UpdateContactDto model) => await _contactService.Update(id, model);
+
+
+        [HttpPatch("{id:int}")]
+        public async Task<ApiResponse<ContactDto>> Update(JsonPatchDocument<UpdateContactDto> contact) {
+
+            if (contact == null) throw new BadRequestException("Algo salió mal");
+            contact.ApplyTo()
+            await _contactService.Update(contact);
+        }
 
         [HttpPost]
         public async Task<ApiResponse<ContactDto>> Create(CreateContactDto model) => await _contactService.Create(model);

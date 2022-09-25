@@ -27,37 +27,28 @@ namespace Agenda.Services.Concret
         public async Task<ApiResponse<ContactDto>> GetAll()
         {
             var apiResponse = new ApiResponse<ContactDto>();
-            var contacts = _mapper.Map<IEnumerable<ContactDto>>(await _contactRepository.GetAll());
+            var allContacts = await _contactRepository.GetAll(x=> !x.IsDeleted);
+            var contacts = _mapper.Map<IEnumerable<ContactDto>>(allContacts);
             apiResponse.result = new ResultBody<ContactDto> { items = contacts.ToList(), totalAcount = contacts.Count() };
             return apiResponse;
         }
 
         public async Task<ApiResponse<ContactDto>> GetById(int id)
         {
-            var contact = await _contactRepository.GetById(id);
-            ValidateIfContactIsNull(id, contact);
-            var apiResponse = new ApiResponse<ContactDto>();
-            var contactDtoList = new List<ContactDto>();
-            contactDtoList.Add(_mapper.Map<ContactDto>(contact));
-            apiResponse.result = new ResultBody<ContactDto> { items = contactDtoList, totalAcount = 1 };
-            return apiResponse;
+            var contact = await ValidateIfContactIsNull(id);
+            return ApiResponseContact(contact);
         }
 
         public async Task<ApiResponse<ContactDto>> Create(CreateContactDto model)
         {
             await _createContactValidator.ValidateAndThrowAsync(model);
             var contact = await _contactRepository.Create(_mapper.Map<Contact>(model));
-            var apiResponse = new ApiResponse<ContactDto>();
-            var contactDtoList = new List<ContactDto>();
-            contactDtoList.Add(_mapper.Map<ContactDto>(contact));
-            apiResponse.result = new ResultBody<ContactDto> { items = contactDtoList, totalAcount = 1 };
-            return apiResponse;
+            return ApiResponseContact(contact);
         }
 
         public async Task<ApiResponse<bool>> Delete(int id)
         {
-            var contact = await _contactRepository.GetById(id);
-            ValidateIfContactIsNull(id, contact);
+            var contact = await ValidateIfContactIsNull(id);
             contact.IsDeleted = true;
             var result = await _contactRepository.Delete(contact);
             var apiResponse = new ApiResponse<bool> { Success = result};
@@ -67,19 +58,26 @@ namespace Agenda.Services.Concret
         public async Task<ApiResponse<ContactDto>> Update(int id, UpdateContactDto model)
         {
             if (id != model.Id) throw new BadRequestException("The query Id does not match with the Id provided in the body request");
-            var contact = Task.Run(async () => await _contactRepository.GetById(id)).Result;
-            ValidateIfContactIsNull(id, contact);
+            var contact = await ValidateIfContactIsNull(id);
             var contactUpdated = await _contactRepository.Update(_mapper.Map(model, contact));
-            var apiResponse = new ApiResponse<ContactDto>();
-            var contactDtoList = new List<ContactDto>();
-            contactDtoList.Add(_mapper.Map<ContactDto>(contactUpdated));
-            apiResponse.result = new ResultBody<ContactDto> { items = contactDtoList, totalAcount = 1 };
-            return apiResponse;
+            return ApiResponseContact(contactUpdated);
         }
 
-        private void ValidateIfContactIsNull(int id, Contact contact)
+        private async Task<Contact> ValidateIfContactIsNull(int id)
         {
+            var contact = await _contactRepository.GetById(id);
             if (contact == null) throw new NotFoundException($"No contact was found with id {id}");
+            return contact;
+        }
+
+
+        private ApiResponse<ContactDto> ApiResponseContact<T>(T contact) 
+        {
+            var apiResponse = new ApiResponse<ContactDto>();
+            var contactDtoList = new List<ContactDto>();
+            contactDtoList.Add(_mapper.Map<ContactDto>(contact));
+            apiResponse.result = new ResultBody<ContactDto> { items = contactDtoList, totalAcount = 1 };
+            return apiResponse;
         }
     }
 }

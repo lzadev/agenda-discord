@@ -36,11 +36,18 @@ namespace Agenda
             services.AddTransient<IContactService, ContactService>();
             //
             services.AddTransient<IContactRepository, ContactRepository>();
+
             services.AddDbContext<AgendaContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("db")));
             services.AddControllers(opt =>
             {
                 opt.Filters.Add<GlobalExceptionFilter>();
-            });
+            }).AddNewtonsoftJson();
+        //    return builder
+        //.GetRequiredService<IOptions<MvcOptions>>()
+        //.Value
+        //.InputFormatters
+        //.OfType<NewtonsoftJsonPatchInputFormatter>()
+        //.First();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

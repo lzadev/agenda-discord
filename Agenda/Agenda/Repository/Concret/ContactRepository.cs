@@ -4,6 +4,7 @@ using Agenda.Repository.Abstract;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Agenda.Repository.Concret
@@ -33,6 +34,11 @@ namespace Agenda.Repository.Concret
         public async Task<IEnumerable<Contact>> GetAll()
         {
             return await context.Contacts.ToListAsync();
+        }
+
+        public async Task<IEnumerable<Contact>> GetAll(Func<Contact, bool> func)
+        {
+            return Task.Run (() =>  context.Contacts.Where(func)).Result;
         }
 
         public async Task<Contact> GetById(int id)
